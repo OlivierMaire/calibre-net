@@ -9,21 +9,22 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
-    <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="@Assets["bootstrap/bootstrap.min.css"]" />
 
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
-    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
-    <link href="_content/CodeBeam.MudBlazor.Extensions/MudExtensions.min.css" rel="stylesheet" />
+    <link href="@Assets["_content/MudBlazor/MudBlazor.min.css"]" rel="stylesheet" />
+    <link href="@Assets["_content/CodeBeam.MudBlazor.Extensions/MudExtensions.min.css"]" rel="stylesheet" />
 
-    <link rel="stylesheet" href="app.css" />
-    <link rel="stylesheet" href="Calibre-net.styles.css" />
-    <link rel="stylesheet" href="fontello/css/calibre-net.css" />
+    <link rel="stylesheet" href="@Assets["app.css"]" />
+    <link rel="stylesheet" href="@Assets["Calibre-net.styles.css"]" />
+    <link rel="stylesheet" href="@Assets["fontello/css/calibre-net.css"]" />
     
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="@Assets["/apple-touch-icon.png"]">
+    <link rel="icon" type="image/png" sizes="32x32" href="@Assets["/favicon-32x32.png"]">
+    <link rel="icon" type="image/png" sizes="16x16" href="@Assets["/favicon-16x16.png"]">
+    <link rel="manifest" href="@Assets["/site.webmanifest"]">
 
+    <ImportMap />
     <HeadOutlet />
 </head>
 
@@ -32,9 +33,9 @@
         <Calibre_net.Client.Components.Routes />
     </CascadingValue>
     <script src="_framework/blazor.web.js"></script>
-    <script src="/js/app.js"></script>
-    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
-    <script src="_content/CodeBeam.MudBlazor.Extensions/MudExtensions.min.js"></script>
+    <script src="@Assets["/js/app.js"]"></script>
+    <script src="@Assets["_content/MudBlazor/MudBlazor.min.js"]"></script>
+    <script src="@Assets["_content/CodeBeam.MudBlazor.Extensions/MudExtensions.min.js"]"></script>
 </body>
 
 </html>

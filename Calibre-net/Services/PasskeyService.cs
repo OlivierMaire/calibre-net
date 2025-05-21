@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
+using Calibre_net.Api.Endpoints;
 using Calibre_net.Client.Services;
 using Calibre_net.Data;
 using Calibre_net.Models;
@@ -59,14 +60,19 @@ public class PasskeyService
 #pragma warning restore CS8604 // Possible null reference argument.
 
         // 3. Create options
-        var credentials = fidoLib.RequestNewCredential(user: fidoUser,
-        excludeCredentials: existingKeys, extensions: null,
-        authenticatorSelection: new AuthenticatorSelection()
+        var credentials = fidoLib.RequestNewCredential(new RequestNewCredentialParams
         {
-            AuthenticatorAttachment = AuthenticatorAttachment.Platform,
-            ResidentKey = ResidentKeyRequirement.Required,
-            UserVerification = UserVerificationRequirement.Preferred
-        }, attestationPreference: AttestationConveyancePreference.None);
+            User = fidoUser,
+            ExcludeCredentials = existingKeys,
+            Extensions = null,
+            AuthenticatorSelection = new AuthenticatorSelection()
+            {
+                AuthenticatorAttachment = AuthenticatorAttachment.Platform,
+                ResidentKey = ResidentKeyRequirement.Required,
+                UserVerification = UserVerificationRequirement.Preferred
+            },
+            AttestationPreference = AttestationConveyancePreference.None
+        });
 
         return credentials;
     }
@@ -88,40 +94,44 @@ public class PasskeyService
         };
 
         // 2. Verify and make the credentials
-        var success = await fidoLib.MakeNewCredentialAsync(rawResponse,
-        options, callback, cancellationToken:
+        var success = await fidoLib.MakeNewCredentialAsync(new MakeNewCredentialParams
+        {
+            AttestationResponse = rawResponse,
+            OriginalOptions = options,
+            IsCredentialIdUniqueToUserCallback = callback
+        }, cancellationToken:
         cancellationToken);
 
         // 3. Store the credentials in db
-        if (success.Result != null)
+        if (success != null)
         {
             dbContext.UserCredentials.Add(new UserCredential
             {
                 UserId = userId,
-                ProviderName = (await GetPasskeyProviderAsync(success.Result.AaGuid))?.Name ?? string.Empty,
+                ProviderName = (await GetPasskeyProviderAsync(success.AaGuid))?.Name ?? string.Empty,
                 CreatedDate = DateTimeOffset.UtcNow,
-                CredentialId = success.Result.Id,
-                AaGuid = success.Result.AaGuid,
-                UserHandle = success.Result.User.Id,
+                CredentialId = success.Id,
+                AaGuid = success.AaGuid,
+                UserHandle = success.User.Id,
                 JsonData = JsonSerializer.Serialize(
                  new UserCredentialJson
                  {
-                     Id = success.Result.Id,
-                     Descriptor = new Models.PublicKeyCredentialDescriptorModel(success.Result.Id),
-                     PublicKey = success.Result.PublicKey,
-                     UserHandle = success.Result.User.Id,
-                     SignCount = success.Result.SignCount,
-                     AttestationFormat = success.Result.AttestationFormat,
+                     Id = success.Id,
+                    //  Descriptor = new Models.PublicKeyCredentialDescriptorModel(success.Id),
+                     PublicKey = success.PublicKey,
+                     UserHandle = success.User.Id,
+                     SignCount = success.SignCount,
+                     AttestationFormat = success.AttestationFormat,
                      RegDate = DateTimeOffset.UtcNow,
-                     AaGuid = success.Result.AaGuid,
-                     Transports = success.Result.Transports,
-                     IsBackupEligible = success.Result.IsBackupEligible,
-                     IsBackedUp = success.Result.IsBackedUp,
-                     AttestationObject = success.Result.AttestationObject,
-                     AttestationClientDataJson = System.Text.Encoding.UTF8.GetString(success.Result.AttestationClientDataJson),
-                     DevicePublicKeys = success.Result.DevicePublicKey != null ?
-                        new List<DevicePublicKey> { new DevicePublicKey { Key = success.Result.DevicePublicKey } } : new List<DevicePublicKey>(),
-                     UserIdBytes = options.User.Id,
+                     AaGuid = success.AaGuid,
+                     Transports = success.Transports,
+                     IsBackupEligible = success.IsBackupEligible,
+                     IsBackedUp = success.IsBackedUp,
+                     AttestationObject = success.AttestationObject,
+                     AttestationClientDataJson = System.Text.Encoding.UTF8.GetString(success.AttestationClientDataJson),
+                     //  DevicePublicKeys = success.DevicePublicKey != null ?
+                     //     new List<DevicePublicKey> { new DevicePublicKey { Key = success.DevicePublicKey } } : new List<DevicePublicKey>(),
+                     UserId = options.User.Id,
                  })
             });
 
@@ -236,9 +246,11 @@ public class PasskeyService
 #pragma warning restore CS8604 // Possible null reference argument.
         }
         // 3. Create options
-        var credentials = fidoLib.GetAssertionOptions(
-        allowedCredentials: existingKeys,
-         userVerification: UserVerificationRequirement.Preferred, extensions: null);
+        var credentials = fidoLib.GetAssertionOptions(new GetAssertionOptionsParams{
+            AllowedCredentials = existingKeys,
+            UserVerification = UserVerificationRequirement.Preferred,
+            Extensions = null,
+        });
 
 
         return credentials;
@@ -257,18 +269,20 @@ public class PasskeyService
     public async Task<VerifyAssertionResult> MakeAssertionAsync(AuthenticatorAssertionRawResponse assertionResponse,
         AssertionOptions originalOptions,
         byte[] storedPublicKey,
-        List<byte[]> storedDevicePublicKeys,
+        // List<byte[]> storedDevicePublicKeys,
         uint storedSignatureCounter,
         CancellationToken cancellationToken = default)
     {
 
-        var res = await fidoLib.MakeAssertionAsync(
-                      assertionResponse,
-                      originalOptions,
-                      storedPublicKey,
-                      storedDevicePublicKeys,
-                      storedSignatureCounter,
-                      UserHandleOwnerOfCredentialIdAsync,
+        var res = await fidoLib.MakeAssertionAsync(new MakeAssertionParams
+        {
+            AssertionResponse = assertionResponse,
+            IsUserHandleOwnerOfCredentialIdCallback = UserHandleOwnerOfCredentialIdAsync,
+            OriginalOptions = originalOptions,
+            StoredPublicKey = storedPublicKey,
+            StoredSignatureCounter = storedSignatureCounter,
+        },
+                      //   storedDevicePublicKeys,
                       cancellationToken: cancellationToken);
 
         return res;
@@ -281,7 +295,7 @@ public class PasskeyService
         return storedCreds.Exists(c => c.CredentialId != null && c.CredentialId.SequenceEqual(args.CredentialId));
     }
 
-    public async Task UpdateCountersAsync(byte[] credentialId, uint signCount, byte[] devicePublicKey)
+    public async Task UpdateCountersAsync(byte[] credentialId, uint signCount)
     {
         var credential = dbContext.UserCredentials.FirstOrDefault(uc => uc.CredentialId == credentialId);
 
@@ -292,8 +306,8 @@ public class PasskeyService
             if (credentialData != null)
             {
                 credentialData.SignCount = signCount;
-                credentialData.DevicePublicKeys ??= [];
-                credentialData.DevicePublicKeys.Add(new DevicePublicKey { Key = devicePublicKey });
+                // credentialData.DevicePublicKeys ??= [];
+                // credentialData.DevicePublicKeys.Add(new DevicePublicKey { Key = devicePublicKey });
                 credential.JsonData = JsonSerializer.Serialize(credentialData);
             }
             await dbContext.SaveChangesAsync();

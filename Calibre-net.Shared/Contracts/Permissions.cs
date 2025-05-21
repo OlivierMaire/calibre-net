@@ -17,6 +17,7 @@ public static class PermissionType
     public const string ADMIN = "Admin";
     public const string ADMIN_USER = "Admin.User";
     public const string BOOK_VIEW = "Book.View";
+    // public const string BOOK_VIEW = "Admin";
     public const string BOOK_BOOKMARK = "Book.Bookmark";
     public const string CONFIGURATION_EDIT = "Configuration.Edit";
     public const string CONFIGURATION_VIEWALL = "Configuration.ViewAll";

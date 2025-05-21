@@ -1,4 +1,6 @@
+using System.Reflection;
 using System.Security.Claims;
+using Calibre_net.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -18,13 +20,34 @@ internal class PersistentAuthenticationStateProvider : AuthenticationStateProvid
         Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
 
     private readonly Task<AuthenticationState> authenticationStateTask = defaultUnauthenticatedTask;
-
+private const string PersistenceKey = $"__internal__{nameof(AuthenticationState)}";
     public PersistentAuthenticationStateProvider(PersistentComponentState state)
     {
+ Console.WriteLine("PersistentAuthenticationStateProvider constructor called");
+
         if (!state.TryTakeFromJson<UserInfo>(nameof(UserInfo), out var userInfo) || userInfo is null)
         {
             return;
         }
+
+        var data = state.GetType().GetFields(BindingFlags.IgnoreCase | BindingFlags.DeclaredOnly | BindingFlags.NonPublic | BindingFlags.Instance)
+        .ToDictionary
+        (
+            propInfo => propInfo.Name,
+            propInfo => propInfo.GetValue(state)
+        );
+
+           if (!state.TryTakeFromJson<AuthenticationStateData>(PersistenceKey, out var stateData) || stateData is null)
+        {
+ Console.WriteLine($"AuthenticationStateData {PersistenceKey} failed or empty");
+            return;
+        }
+        foreach (var claim in stateData.Claims)
+        {
+            Console.WriteLine($"stateData Claim: {claim.Type} = {claim.Value}");
+        }
+
+      
 
         Claim[] claims = [
             new Claim(ClaimTypes.NameIdentifier, userInfo.UserId),

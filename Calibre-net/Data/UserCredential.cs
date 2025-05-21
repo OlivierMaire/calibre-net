@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Fido2NetLib;
+using Fido2NetLib.Objects;
 
 namespace Calibre_net.Data;
 
@@ -48,7 +49,7 @@ public class UserCredentialJson
     /// </summary>
     [JsonPropertyName("id")]
     [JsonConverter(typeof(Base64UrlConverter))]
-    public byte[]? Id { get; set; }
+    public byte[] Id { get; set; } = Array.Empty<byte>();
 
     /// <summary>
     /// The credential public key of the public key credential source.
@@ -96,18 +97,20 @@ public class UserCredentialJson
     [JsonPropertyName("attestationClientDataJson")]
     public string? AttestationClientDataJson { get; set; }
 
-    [JsonPropertyName("devicePublicKeys")]
+    // [JsonPropertyName("devicePublicKeys")]
     // [JsonConverter(typeof(Base64UrlConverter))]
     // public byte[]? DevicePublicKey { get; set; }
-    public List<DevicePublicKey>? DevicePublicKeys { get; set; }
+    // public List<DevicePublicKey>? DevicePublicKeys { get; set; }
 
 
-    [JsonPropertyName("userIdBytes")]
+    [JsonPropertyName("userId")]
     [JsonConverter(typeof(Base64UrlConverter))]
-    public byte[]? UserIdBytes { get; set; }
+    public byte[]? UserId { get; set; }
 
     [JsonPropertyName("descriptor")]
-    public Models.PublicKeyCredentialDescriptorModel? Descriptor { get; set; }
+    // public Models.PublicKeyCredentialDescriptorModel? Descriptor { get; set; }
+     public PublicKeyCredentialDescriptor Descriptor => new(PublicKeyCredentialType.PublicKey, Id, Transports);
+
 
     [JsonPropertyName("userHandle")]
     public byte[]? UserHandle { get; set; }

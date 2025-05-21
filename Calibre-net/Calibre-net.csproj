@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-calibre-net-460c1009-5615-4b82-a0fa-faab7c79bf67</UserSecretsId>
@@ -17,27 +17,28 @@
     <PackageReference Include="Blazored.FluentValidation" Version="2.1.0" />
     <PackageReference Include="CodeBeam.MudBlazor.Extensions" Version="6.9.2" />
     <PackageReference Include="dapper" Version="2.1.35" />
-    <PackageReference Include="FastEndpoints" Version="5.24.0" />
-    <PackageReference Include="FastEndpoints.Security" Version="5.24.0" />
-    <PackageReference Include="FastEndpoints.Swagger" Version="5.24.0" />
-    <PackageReference Include="Fido2" Version="4.0.0-beta.12" />
-    <PackageReference Include="Fido2.AspNet" Version="4.0.0-beta.12" />
+    <PackageReference Include="FastEndpoints" Version="5.35.0" />
+    <PackageReference Include="FastEndpoints.Security" Version="5.35.0" />
+    <PackageReference Include="FastEndpoints.Swagger" Version="5.35.0" />
+    <PackageReference Include="Fido2" Version="4.0.0-beta.16" />
+    <PackageReference Include="Fido2.AspNet" Version="4.0.0-beta.16" />
+    <PackageReference Include="FluentResults" Version="3.16.0" />
     <PackageReference Include="HeimGuard" Version="1.0.0" />
     <PackageReference Include="InterpolatedSql.Dapper" Version="2.3.0" />
     <PackageReference Include="Markdig" Version="0.37.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.*" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Localization" Version="8.0.*" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.*" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.*" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.*" />
     <PackageReference Include="Riok.Mapperly" Version="3.5.1" />
     <PackageReference Include="SkiaSharp" Version="2.88.8" />
     <PackageReference Include="VersOne.Epub" Version="3.3.1" />
-    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="8.102.2.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.*" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.*" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.*">
+    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="9.103.7.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.*">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -54,7 +55,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ComicMeta" Version="1.0.6" />
+    <PackageReference Include="ComicMeta" Version="1.0.7" />
+    <!-- <ProjectReference Include="..\..\Components\ComicMeta\ComicMeta.csproj" />  -->
   </ItemGroup>
 
   <!-- <ItemGroup Condition=" '$(Configuration)'!='Debug' ">
@@ -65,7 +67,7 @@
   </ItemGroup> -->
   
   <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
+    <PackageReference Include="GitVersion.MsBuild" Version="6.2.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>

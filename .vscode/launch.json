@@ -1,7 +1,10 @@
 {
     "version": "0.2.0",
+    
     "configurations": [
-        
+
+
+
         {
             "name": ".NET Core Attach",
             "type": "coreclr",
@@ -12,6 +15,13 @@
             "type": "blazorwasm",
             "request": "launch",
             "cwd": "${workspaceFolder}/calibre-net"
-        }
+        },
+
+        {
+            "name": "Attach and Debug",
+            "type": "blazorwasm",
+            "request": "attach",
+            "url": "https://localhost:7046/"
+          }
     ]
 }
