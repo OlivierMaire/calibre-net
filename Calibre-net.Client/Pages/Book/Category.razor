@@ -69,13 +69,13 @@
     {
         Categories = CategoryType switch
         {
-            "tags" => (await CategoryClient.TagsAsync()).Tags.ProjectToCategoryCount().ToList(),
-            "series" => (await CategoryClient.SeriesAsync()).Series.ProjectToCategoryCount().ToList(),
-            "authors" => (await CategoryClient.AuthorsAsync()).Authors.ProjectToCategoryCount().ToList(),
-            "publishers" => (await CategoryClient.PublishersAsync()).Publishers.ProjectToCategoryCount().ToList(),
-            "languages" => (await CategoryClient.LanguagesAsync()).Languages.ProjectToCategoryCount().ToList(),
-            "ratings" => (await CategoryClient.RatingsAsync()).Rating.ProjectToCategoryCount().ToList(),
-            "formats" => (await CategoryClient.FormatsAsync()).Formats.ProjectToCategoryCount().ToList(),
+            "tags" => ((await CategoryClient.TagsAsync()) ?? new GetTagsResponse([])).Tags.ProjectToCategoryCount().ToList(),
+            "series" => ((await CategoryClient.SeriesAsync()) ?? new GetSeriesResponse([])).Series.ProjectToCategoryCount().ToList(),
+            "authors" => ((await CategoryClient.AuthorsAsync()) ?? new GetAuthorsResponse([])).Authors.ProjectToCategoryCount().ToList(),
+            "publishers" => ((await CategoryClient.PublishersAsync()) ?? new GetPublishersResponse([])).Publishers.ProjectToCategoryCount().ToList(),
+            "languages" => ((await CategoryClient.LanguagesAsync()) ?? new GetLanguagesResponse([])).Languages.ProjectToCategoryCount().ToList(),
+            "ratings" => ((await CategoryClient.RatingsAsync()) ?? new GetRatingsResponse([])).Rating.ProjectToCategoryCount().ToList(),
+            "formats" => ((await CategoryClient.FormatsAsync()) ?? new GetFormatsResponse([])).Formats.ProjectToCategoryCount().ToList(),
             _ => CategoryType.StartsWith("cc_") ? await HandleCustomColumns() : [],
         };
 

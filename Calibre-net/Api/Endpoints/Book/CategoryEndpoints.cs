@@ -1,13 +1,18 @@
 using Calibre_net.Services;
 using Calibre_net.Shared.Contracts;
 using FastEndpoints;
+using FluentResults;
 
 namespace Calibre_net.Api.Endpoints;
 public class Category : Group
 {
     public Category()
     {
-        Configure("category", ep => ep.Description(x => x.WithGroupName("category")));
+        Configure("category", ep => ep.Description(x => {
+            x.WithGroupName("category");
+            x.ProducesProblemDetails(401,  "application/problem+json");
+            x.ProducesProblemDetails(403, "application/problem+json");
+            }));
     }
 }
 
@@ -99,8 +104,7 @@ public sealed class GetLanguagesEndpoint(BookService bookService) : EndpointWith
         Version(1);
         Group<Category>();
         ResponseCache((int)TimeSpan.FromDays(1).TotalSeconds);
-        Policies(PermissionType.BOOK_VIEW);
-
+        Policies([PermissionType.BOOK_VIEW]);
     }
 
     public override async Task HandleAsync(CancellationToken ct)

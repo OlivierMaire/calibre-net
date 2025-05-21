@@ -21,14 +21,15 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddMudServices();
 
-builder.Services.AddAuthorizationCore();
+// builder.Services.AddAuthorizationCore();
 builder.Services.AddAuthorizationCore(options =>
 {
     options.AddPolicy("Admin",
         policy => policy.RequireClaim("Permissions", "Admin"));
 });
 builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddSingleton<AuthenticationStateProvider, PersistentAuthenticationStateProvider>();
+builder.Services.AddAuthenticationStateDeserialization();
+// builder.Services.AddSingleton<AuthenticationStateProvider, PersistentAuthenticationStateProvider>();
 
 // await builder.Build().RunAsync();
 

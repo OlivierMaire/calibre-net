@@ -25,6 +25,7 @@ using FastEndpoints.Security;
 using Calibre_net;
 using System.Security.Claims;
 using MudBlazor;
+using AngleSharp.Io;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
@@ -34,11 +35,11 @@ var listeningPort = builder.Configuration["calibre:basic:server:port"];
 if (!string.IsNullOrEmpty(listeningPort))
     builder.WebHost.UseUrls($"https://localhost:{listeningPort}");
 
-
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
-    .AddInteractiveWebAssemblyComponents();
+    .AddInteractiveWebAssemblyComponents()
+    .AddAuthenticationStateSerialization(options => options.SerializeAllClaims = true);
 
 // builder.Services.AddControllers();
 
@@ -60,39 +61,43 @@ builder.Services.AddAuthentication(options =>
     })
     .AddIdentityCookies();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Events = new Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationEvents
+    {
+        OnRedirectToLogin = context =>
+        {
+            if (context.Request.Path.StartsWithSegments("/api"))
+            {
+                context.Response.StatusCode = 401;
+                      return context.Response.WriteAsJsonAsync(new FastEndpoints.ProblemDetails([], 401));
+                // return context.Response.WriteAsJsonAsync(new
+                // {
+                //     StatusCode = 401,
+                //     Message = "Unauthorized access."
+                // });
+            }
+            context.Response.Redirect(context.RedirectUri);
+            return Task.CompletedTask;
+        },
+        OnRedirectToAccessDenied = context =>
+        {
+            if (context.Request.Path.StartsWithSegments("/api"))
+            {
 
-//  builder.Services.ConfigureApplicationCookie(options => {
-//             options.AccessDeniedPath = "/Account/Login3333";
-//  });
-
-// builder.Services.ConfigureApplicationCookie(options =>
-// options.Events = new Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationEvents()
-// {
-//     OnRedirectToReturnUrl = (response) =>
-//         {
-//             if (response.Request.Path.StartsWithSegments("/api") && response.RedirectUri.Contains("Account/Login"))
-//             {
-//                 response.Response.StatusCode = 401;
-//             }
-//             return Task.CompletedTask;
-//         },
-//     OnRedirectToLogin = (response) =>
-//    {
-//        if (response.Request.Path.StartsWithSegments("/api") && response.Response.StatusCode == 200)
-//        {
-//            response.Response.StatusCode = 401;
-//        }
-//        return Task.CompletedTask;
-//    },
-//     OnRedirectToAccessDenied = (response) =>
-//   {
-//       if (response.Request.Path.StartsWithSegments("/api") && response.Response.StatusCode == 200)
-//       {
-//           response.Response.StatusCode = 403;
-//       }
-//       return Task.CompletedTask;
-//   }
-// });
+                context.Response.StatusCode = 403;
+                      return context.Response.WriteAsJsonAsync(new FastEndpoints.ProblemDetails([], 403));
+                //  return context.Response.WriteAsJsonAsync(new
+                // {
+                //     StatusCode = 403,
+                //     Message = "Access forbidden."
+                // });
+            }
+            context.Response.Redirect(context.RedirectUri);
+            return Task.CompletedTask;
+        }
+    };
+});
 
 builder.Services.AddHeimGuard<UserPolicyHandler>()
     .AutomaticallyCheckPermissions()
@@ -154,7 +159,7 @@ builder.Services.AddFido2(options =>
           options.ServerDomain = fidoRpId; // <- Set front side domain
           options.ServerName = "Calibre.Net";
           options.ServerIcon = "https://static-00.iconduck.com/assets.00/apps-calibre-icon-512x512-qox1oz2k.png";
-          options.Origins = new HashSet<string> { $"https://{fidoRpId}/"  };
+          options.Origins = new HashSet<string> { $"https://{fidoRpId}/",$"https://{fidoRpId}:{listeningPort}/"  };
 
           //   options.ServerDomain = Configuration["fido2:serverDomain"];
           //   options.ServerName = "FIDO2 Test";
@@ -194,9 +199,7 @@ if (string.IsNullOrEmpty(baseAddress))
 
 builder.Services.AddHttpClient();
 
-
 builder.Services.AddHttpClient("AuthenticationApi", client => client.BaseAddress = new Uri(baseAddress));
-
 
 builder.Services.AddScoped<ServerAuthenticationDelegatingHandler>();
 builder.Services.AddHttpClient("calibre-net.Api", client => client.BaseAddress = new Uri(baseAddress))
@@ -240,7 +243,7 @@ app.UseRequestLocalization(localizationOptions);
 
 app.UseHttpsRedirection();
 
-app.UseStaticFiles();
+app.MapStaticAssets();
 
 app.UseMiddleware<BlazorCookieAuthenticationMiddleware<ApplicationUser>>();
 
@@ -259,6 +262,45 @@ app.UseResponseCaching()
 // .UseAntiforgeryFE()
 .UseFastEndpoints(c =>
 {
+    c.Errors.UseProblemDetails(x =>
+    {
+        x.TitleTransformer = pd => pd.Status switch
+        {
+            401 => "Unauthorized",
+            403 => "Access forbidden",
+            _ => "An error occurred"
+        };
+
+        x.IndicateErrorCode = true;
+
+        x.IndicateErrorSeverity = true;
+    
+        
+    });
+
+     c.Endpoints.Configurator =
+               ep =>
+               {
+                   if (ep.AnonymousVerbs is null)
+                       ep.Description(b => b.Produces<FastEndpoints.ProblemDetails>(401));
+               };
+
+    c.Errors.ResponseBuilder = (errors, ctx, statusCode ) =>
+    {
+        ctx.Response.StatusCode = statusCode;
+        return ctx.Response.WriteAsJsonAsync(new
+        {
+            StatusCode = statusCode,
+            Message = statusCode switch
+            {
+                401 => "Unauthorized access.",
+                403 => "Access forbidden.",
+                _ => "An error occurred."
+            },
+            Errors = errors
+        });
+    };
+    // c.Errors.ResponseBuilder = FastEndpoints.ProblemDetails.ResponseBuilder;
     c.Versioning.Prefix = "v";
     c.Versioning.PrependToRoute = true;
     c.Endpoints.RoutePrefix = "api";
@@ -268,15 +310,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerGen();
 }
 
-// app.MapControllers();
-
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(Calibre_net.Client.Pages.Book.Books).Assembly);
-
-
-
-
 
 app.Run();

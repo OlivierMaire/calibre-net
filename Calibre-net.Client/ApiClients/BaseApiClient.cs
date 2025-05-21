@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using Calibre_net.Client.Services;
 
 // [SingletonRegistration]
-public class BaseApiClient
+public partial class BaseApiClient
 {
     private readonly IHttpClientFactory httpClientFactory;
 

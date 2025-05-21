@@ -16,6 +16,7 @@ namespace Calibre_net.Components.Account;
 // authentication state to the client which is then fixed for the lifetime of the WebAssembly application.
 internal sealed class PersistingRevalidatingAuthenticationStateProvider : RevalidatingServerAuthenticationStateProvider
 {
+    protected override TimeSpan RevalidationInterval => TimeSpan.FromMinutes(30);
     private readonly IServiceScopeFactory scopeFactory;
     private readonly PersistentComponentState state;
     private readonly IdentityOptions options;
@@ -39,7 +40,6 @@ internal sealed class PersistingRevalidatingAuthenticationStateProvider : Revali
         subscription = state.RegisterOnPersisting(OnPersistingAsync, RenderMode.InteractiveWebAssembly);
     }
 
-    protected override TimeSpan RevalidationInterval => TimeSpan.FromMinutes(30);
 
     protected override async Task<bool> ValidateAuthenticationStateAsync(
         AuthenticationState authenticationState, CancellationToken cancellationToken)
@@ -73,7 +73,7 @@ internal sealed class PersistingRevalidatingAuthenticationStateProvider : Revali
     {
         authenticationStateTask = task;
     }
-
+// internal const string PersistenceKey = $"__internal2__{nameof(AuthenticationState)}";
     private async Task OnPersistingAsync()
     {
         if (authenticationStateTask is null)
@@ -101,6 +101,21 @@ internal sealed class PersistingRevalidatingAuthenticationStateProvider : Revali
                     PreferredLocale = preferedlocale ?? string.Empty
                     
                 });
+
+                // state.PersistAsJson()
+            //       var  data = new AuthenticationStateData();
+            //         if (authenticationState.User.Identities.FirstOrDefault() is { } identity)
+            // {
+            //     data.NameClaimType = identity.NameClaimType;
+            //     data.RoleClaimType = identity.RoleClaimType;
+            // } 
+            //    foreach (var claim in authenticationState.User.Claims)
+            //     {
+            //         data.Claims.Add(new(claim));
+            //     }
+            //      state.PersistAsJson(PersistenceKey, data);
+
+            //      state.TryTakeFromJson<AuthenticationStateData>(PersistenceKey, out var stateData);
             }
         }
     }

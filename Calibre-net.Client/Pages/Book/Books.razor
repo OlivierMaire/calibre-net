@@ -187,7 +187,7 @@ NumericSearchOperator = NumericOperator.GreaterThan
 
             var orders = Orders.Where(o => o.Position > 0).OrderBy(o => o.Position)
             .Select(o => o as SearchOrder).ToList();
-            BookList = await BookClient.SearchAsync(new GetSearchValuesRequest(SearchTerms, orders));
+            BookList = await BookClient.SearchAsync(new GetSearchValuesRequest(SearchTerms, orders)) ?? [];
             Console.WriteLine($"{BookList.Count()} books found");
             StateHasChanged();
         }
