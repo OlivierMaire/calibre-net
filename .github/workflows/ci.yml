@@ -22,10 +22,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: '0' #for GitVersion
-      - name: Setup .NET ${{ matrix.dotnet-version }}
+      - name: Setup .NET ${{ matrix.dotnet }}
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ matrix.dotnet-version }}
+          dotnet-version: ${{ matrix.dotnet }}
         
       - name: Setup .NET wasm-tools
         run: sudo dotnet workload install wasm-tools
