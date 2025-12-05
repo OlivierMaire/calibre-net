@@ -32,6 +32,8 @@
 
     public string GetOpositeValue()
     {
+        try {
+
         string propertyPath = OpositePath;//"CustomColumns[2].Value.Data[0].Value";
 
         if (string.IsNullOrEmpty(propertyPath))
@@ -44,7 +46,6 @@
         object? currentObject = Book;
         if (currentObject == null)
             return string.Empty;
-
         foreach (var propertyName in propertyNames)
         {
             int? arrayIndex = null;
@@ -88,7 +89,15 @@
             }
             return currentObject?.ToString() ?? string.Empty;
         }
+   } 
+   catch (Exception ex) { Console.WriteLine(ex.ToString()); Console.WriteLine(Book.Id); }
+   finally { 
 
+
+        }
         return string.Empty;
+        
+     
+
     }
 }

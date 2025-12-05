@@ -59,6 +59,10 @@ public class CalibreDbDapperContext : IDapperContext
         }
         var connection = new SqliteConnection(connectionString);
         connection.Open();
+        
+        var command = connection.CreateCommand();
+        command.CommandText = "PRAGMA busy_timeout = 5000;";
+        command.ExecuteNonQuery();
 
         connection.CreateFunction("sortconcat", (Func<string, string>)SortedConcatenate);
 

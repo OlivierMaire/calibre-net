@@ -340,7 +340,21 @@ public class BookService(CalibreDbDapperContext dbContext, ApplicationDbContext 
                 SELECT cc.* from custom_columns as cc;
                 """, new { id }))
             {
-                var book = multi.ReadFirst<Book>();
+
+                Book? book = null;
+                try
+                {
+                   book = multi.ReadFirst<Book>();
+                }
+                catch (Exception ex)
+                {
+                    // no book found
+                    return null;
+                }
+                finally
+                {
+
+                }
 
                 if (book == null)
                     return null;

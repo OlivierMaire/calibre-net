@@ -34,6 +34,7 @@ public sealed class GetBookEndpoint(BookService service) : Endpoint<GetBookReque
         Group<Book>();
         ResponseCache(60); //cache for 60 seconds
         Policies(PermissionType.BOOK_VIEW);
+        Description(x => x.Produces(404));
     }
 
     public override async Task HandleAsync(GetBookRequest req, CancellationToken ct)
