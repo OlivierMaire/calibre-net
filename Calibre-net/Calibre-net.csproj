@@ -31,7 +31,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.*" />
     <PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.*" />
     <PackageReference Include="Riok.Mapperly" Version="3.5.1" />
-    <PackageReference Include="SkiaSharp" Version="2.88.8" />
+    <PackageReference Include="SkiaSharp" Version="3.119.1" />
     <PackageReference Include="VersOne.Epub" Version="3.3.1" />
     <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="9.103.7.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.*" />
@@ -55,7 +55,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ComicMeta" Version="1.0.7" />
+    <PackageReference Include="ComicMeta" Version="1.0.8" />
     <!-- <ProjectReference Include="..\..\Components\ComicMeta\ComicMeta.csproj" />  -->
   </ItemGroup>
 
@@ -67,7 +67,7 @@
   </ItemGroup> -->
   
   <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Version="6.2.0">
+    <PackageReference Include="GitVersion.MsBuild" Version="6.5.1">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
