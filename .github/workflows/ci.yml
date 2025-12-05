@@ -43,7 +43,7 @@ jobs:
         #--no-restore
 
       - name: Install EF Core CLI
-        run: dotnet tool update dotnet-ef --global 
+        run: dotnet tool update dotnet-ef --global --version 9.0.11
         shell: bash
       # - name: Install Ef tooling
       #   run: |
