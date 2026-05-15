@@ -39,7 +39,7 @@ public class BookService(CalibreDbDapperContext dbContext, ApplicationDbContext 
         using var ctx = dbContext.ConnectionCreate();
         var dynamicParams = new DynamicParameters();
         var sql = $"""
-            SELECT b.id, b.title, b.sort, b.timestamp, b.pubdate, b.series_index, b.author_sort, b.isbn, b.lccn, b.path, b.flags, b.uuid, b.has_cover, b.last_modified, 
+            SELECT b.id, b.title, b.sort, b.timestamp, b.pubdate, b.series_index, b.author_sort, b.path, b.uuid, b.has_cover, b.last_modified, 
             a.id, a.name, a.sort, a.link, 
             s.id, s.name, s.sort, s.link, 
             r.id, r.rating as ratingValue, r.link
@@ -192,8 +192,21 @@ public class BookService(CalibreDbDapperContext dbContext, ApplicationDbContext 
                 if (term is ListSearchTerm || term is IdSearchTerm)
                 {
                     var termValue = System.Net.WebUtility.UrlDecode(term?.Value);
-                    sqlWhere += " AND (d.Format = @formatValue) ";
-                    dynamicParams.Add("formatValue", termValue);
+                    if (termValue?.Contains(",") ?? false)
+                    {
+                        var formatList = termValue.Split(',').Select(f => f.Trim()).ToList();
+                        var placeholders = string.Join(",", formatList.Select((_, i) => $"@format{i}"));
+                        sqlWhere += $" AND (d.Format IN ({placeholders})) ";
+                        for (int i = 0; i < formatList.Count; i++)
+                        {
+                            dynamicParams.Add($"format{i}", formatList[i]);
+                        }
+                    }
+                    else
+                    {
+                        sqlWhere += " AND (d.Format = @formatValue) ";
+                        dynamicParams.Add("formatValue", termValue);
+                    }
                 }
             }
         }

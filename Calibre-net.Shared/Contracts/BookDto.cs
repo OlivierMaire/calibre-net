@@ -24,19 +24,9 @@ public partial class BookDto
     [JsonPropertyName("authorsort")]
     public string? AuthorSort { get; set; }
 
-    // public string[] Authors => 
-    //     this.AuthorSort?.Split("&", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-    // }
-
-    public string? Isbn { get; set; }
-
-    public string? Lccn { get; set; }
-
     [JsonConverter(typeof(SensibleDataConverter<string>))]
     [JsonPropertyName("path")]
     public string Path { get; set; } = null!;
-
-    public int Flags { get; set; }
 
     public string? Uuid { get; set; }
 
@@ -50,7 +40,6 @@ public partial class BookDto
     public List<AuthorDto> Authors {get;set;} = [];
     [JsonPropertyName("series")]
     public SeriesDto Series {get;set;} = null!;
-
 
     [JsonPropertyName("rating")]
     public RatingDto Rating {get;set;} = null!;
