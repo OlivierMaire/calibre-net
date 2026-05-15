@@ -1,17 +1,15 @@
 @inject ApiClients.BookClient BookClient
 @using Microsoft.JSInterop
 @inject IJSRuntime JSRuntime
+@inject PersistentComponentState ApplicationState
 @rendermode InteractiveAuto
 
-@* @BookList.Count Books
-
-@SearchQuery @OrderQuery *@
-
 <MudButton OnClick="GoToUnread"> Go To Last Unread</MudButton>
+<MudSwitch T="bool" ValueChanged="AudioBookOnlyChanged" Label="Audio Books Only" />
 <MudTimeline>
     @foreach (var book in BookList)
     {
-        <TimelineElement BookId="@book.Id" OpositePath="CustomColumns[2].Value.Data[0].Value" />
+        <TimelineElement BookId="@book.Id" OpositePath="CustomColumns[2].Value.Data[0].Value" @key="book" />
     }
 </MudTimeline>
 
@@ -21,17 +19,45 @@
     [Parameter] public string OrderQuery { get; set; } = string.Empty;
     private IJSObjectReference? _module;
 
+    private bool _audioBookOnly = false;
+
     ICollection<BookDto> BookList { get; set; } = [];
+
+    const string AudioFormats = "mp3,aac,aax,m4a,m4b,ogg,opus,wav,flac";
+
+    private PersistingComponentStateSubscription persistingSubscription;
 
     protected override async Task OnInitializedAsync()
     {
+        persistingSubscription =
+        ApplicationState.RegisterOnPersisting(PersistData);
 
+        if (ApplicationState.TryTakeFromJson<ICollection<BookDto>>("BookList", out var restoredBookList))
+        {
+            BookList = restoredBookList ?? [];
+        }
+
+        if (ApplicationState.TryTakeFromJson<bool>("AudioBookOnly", out var restoredAudioBookOnly))
+        {
+            _audioBookOnly = restoredAudioBookOnly;
+        }
+
+        await RefreshBookList();
+    }
+    private Task PersistData()
+    {
+        ApplicationState.PersistAsJson("BookList", BookList);
+        ApplicationState.PersistAsJson("AudioBookOnly", _audioBookOnly);
+
+        return Task.CompletedTask;
+    }
+    private async Task RefreshBookList()
+    {
         var searchTerms = SearchQuery.ParseStringToDictionary().ToSearchTerms();
         var orderTerms = OrderQuery.ToSearchOrderModel().OrderBy(o => o.Position)
         .Select(o => o as SearchOrder).ToList();
 
         BookList = await BookClient.SearchAsync(new GetSearchValuesRequest(searchTerms, orderTerms));
-
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -50,8 +76,28 @@
 
         if (_module != null)
         {
-        Console.WriteLine("Invoke JS");
+            Console.WriteLine("Invoke JS");
             _module.InvokeAsync<IJSObjectReference>("scrollToUnread");
         }
+    }
+
+    private async Task AudioBookOnlyChanged(bool isChecked)
+
+    {
+        Console.WriteLine("Filter only audio books: " + isChecked);
+
+        _audioBookOnly = isChecked;
+        if (_audioBookOnly)
+        {
+            SearchQuery += $"/format/{AudioFormats}";
+        }
+        else
+        {
+            SearchQuery = SearchQuery.Replace($"/format/{AudioFormats}", string.Empty);
+        }
+
+        await RefreshBookList();
+        // force re-render of timeline
+        StateHasChanged();
     }
 }
