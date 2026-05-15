@@ -35,7 +35,7 @@
 
   <ItemGroup>
     <PackageReference Include="EPubBlazor" Version="0.4.0-alpha.20" />
-    <PackageReference Include="AudioPlayerBlazor" Version="1.1.0" />
+    <PackageReference Include="AudioPlayerBlazor" Version="1.2.0" />
     <PackageReference Include="ComicsBlazor" Version="1.2.3" />
     <!-- <ProjectReference Include="..\..\Components\EPubBlazor\EPubBlazor.csproj" /> -->
     <!-- <ProjectReference Include="..\..\Components\AudioPlayerBlazor\AudioPlayerBlazor.csproj" />  -->
